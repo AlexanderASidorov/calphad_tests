@@ -21,7 +21,7 @@ $##########################################################################
 $ 
 $ Copyright holder and editor: Erwin Povoden-Karadeniz 
 $ (erwin.povoden-karadeniz@tuwien.ac.at)
-$ Update by: Erwin Povoden-Karadeniz (pov) & Aurélie Jacob (jac)
+$ Update by: Erwin Povoden-Karadeniz (pov) & AurÃ©lie Jacob (jac)
 $
 $ This database mc_fe_v2.062.tdb is made available under the 
 $ Open Database License: http://opendatacommons.org/licenses/odbl/1.0/. 
@@ -177,36 +177,36 @@ $
 $***************************************************************************
 $
 $ Defines Fe as reference element
-REFERENCE_ELEMENT FE !
+$ REFERENCE_ELEMENT FE !
 $
 $ if phase FCC_A1 is selected, add composition set for carbonitrides ...
-ADD_COMPOSITION_SET FCC_A1 :NB,TA,TI,V:C,N: !
-ADD_COMPOSITION_SET FCC_A1 :CU:VA: !
+$ ADD_COMPOSITION_SET FCC_A1 :NB,TA,TI,V:C,N: !
+$ ADD_COMPOSITION_SET FCC_A1 :CU:VA: !
 
 $ simple carbide/nitride phases derived from parent are defined 
 $ by MatCalc syntax (5.44.0.008) 
 $ CREATE_NEW_PHASE parent_phase_name c :El1,El2,...:El3,El4,...: new_name
 $
 $ if phase HCP_A3 is selected, add composition set for carbides and nitrides
-ADD_COMPOSITION_SET HCP_A3 :CR,TA:N: !
-ADD_COMPOSITION_SET HCP_A3 :MO:C: !
-ADD_COMPOSITION_SET HCP_A3 :CR,V:C: !
+$ ADD_COMPOSITION_SET HCP_A3 :CR,TA:N: !
+$ ADD_COMPOSITION_SET HCP_A3 :MO:C: !
+$ ADD_COMPOSITION_SET HCP_A3 :CR,V:C: !
 $
 $ if phase M6C is selected, add composition set for eta-nitride Cr3Ni2SiN
-ADD_COMPOSITION_SET M6C :CR:NI:SI:C,N: !
+$ ADD_COMPOSITION_SET M6C :CR:NI:SI:C,N: !
 $
 $ MatCalc syntax (MatCalc 5.23.1036) for split model of ordered phases
-ATTACH_CONTRIBUTION BCC_B2  BCC_A2 ORDER_DISORDER !
-ADD_COMPOSITION_SET BCC_B2 :FE:CO: !
-ADD_COMPOSITION_SET BCC_B2 :FE,MN:SI: !
-ADD_COMPOSITION_SET BCC_B2 :MN:NI: !
-ADD_COMPOSITION_SET BCC_B2 :NI:TI: !
+$ ATTACH_CONTRIBUTION BCC_B2  BCC_A2 ORDER_DISORDER !
+$ ADD_COMPOSITION_SET BCC_B2 :FE:CO: !
+$ ADD_COMPOSITION_SET BCC_B2 :FE,MN:SI: !
+$ ADD_COMPOSITION_SET BCC_B2 :MN:NI: !
+$ ADD_COMPOSITION_SET BCC_B2 :NI:TI: !
 $
-ADD_COMPOSITION_SET LAVES_PHASE :CO:MO: !
-ADD_COMPOSITION_SET LAVES_PHASE :FE:W: !
+$ ADD_COMPOSITION_SET LAVES_PHASE :CO:MO: !
+$ ADD_COMPOSITION_SET LAVES_PHASE :FE:W: !
 $
 $ MatCalc syntax (MatCalc 5.31.1053)
-$ATTACH_CONTRIBUTION BCC_DISL  BCC_A2 PARENT_PHASE !
+$ ATTACH_CONTRIBUTION BCC_DISL  BCC_A2 PARENT_PHASE !
 $
 $
 $ ##############################################################
@@ -214,45 +214,45 @@ $           Enthalpies of vacancy formation - FCC_A1
 $ ##############################################################
 $
 $ default is Fe
-PARAMETER HMVA(FCC_A1,*;0)
- 273.00 +175000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,*;0)
+$ 273.00 +175000; 6000.00  N
 REF:pov12 !
 
-PARAMETER HMVA(FCC_A1,AL:*;0)
- 273.00 +64200; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,AL:*;0)
+$ 273.00 +64200; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(FCC_A1,CO:*;0)
- 273.00 +165000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,CO:*;0)
+$ 273.00 +165000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,CU:*;0)
- 273.00 +125000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,CU:*;0)
+$ 273.00 +125000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(FCC_A1,FE:*;0)
- 273.00 +175000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,FE:*;0)
+$ 273.00 +175000; 6000.00  N
 REF:pov12 !
-PARAMETER HMVA(FCC_A1,HF:*;0)
- 273.00 +200000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,HF:*;0)
+$ 273.00 +200000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,LA:*;0)
- 273.00 +140000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,LA:*;0)
+$ 273.00 +140000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,MN:*;0)
- 273.00 +230000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,MN:*;0)
+$ 273.00 +230000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,NI:*;0)
- 273.00 +134000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,NI:*;0)
+$ 273.00 +134000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,PD:*;0)
- 273.00 +178000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,PD:*;0)
+$ 273.00 +178000; 6000.00  N
 REF:pov14 !
-PARAMETER HMVA(FCC_A1,TI:*;0)
- 273.00 +188000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,TI:*;0)
+$ 273.00 +188000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,W:*;0)
- 273.00 +160000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,W:*;0)
+$ 273.00 +160000; 6000.00  N
 REF:pov15 !
-PARAMETER HMVA(FCC_A1,ZR:*;0)
- 273.00 +195000; 6000.00  N
+$ PARAMETER HMVA(FCC_A1,ZR:*;0)
+$ 273.00 +195000; 6000.00  N
 REF:pov15 !
 $
 $ ##############################################################
@@ -260,30 +260,30 @@ $           Enthalpies of vacancy formation - BCC_A2
 $ ##############################################################
 $
 $ default is Fe
-PARAMETER HMVA(BCC_A2,*;0)
- 273.00 +163000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,*;0)
+$ 273.00 +163000; 6000.00  N
 REF:pov10 !
 
-PARAMETER HMVA(BCC_A2,CR:*;0)
- 273.00 +203000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,CR:*;0)
+$ 273.00 +203000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(BCC_A2,FE:*;0)
- 273.00 +163000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,FE:*;0)
+$ 273.00 +163000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(BCC_A2,MN:*;0)
- 273.00 +101000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,MN:*;0)
+$ 273.00 +101000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(BCC_A2,MO:*;0)
- 273.00 +286000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,MO:*;0)
+$ 273.00 +286000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(BCC_A2,NB:*;0)
- 273.00 +290000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,NB:*;0)
+$ 273.00 +290000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(BCC_A2,V:*;0)
- 273.00 +204000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,V:*;0)
+$ 273.00 +204000; 6000.00  N
 REF:pov10 !
-PARAMETER HMVA(BCC_A2,W:*;0)
- 273.00 +378000; 6000.00  N
+$ PARAMETER HMVA(BCC_A2,W:*;0)
+$ 273.00 +378000; 6000.00  N
 REF:pov10 !
 $
 $***************************************************************************
@@ -5784,7 +5784,7 @@ PARAMETER G(GAMMA_PRIME,FE:TI;0) 273.00 +0.75*GDHCTI#+0.25*GDHCFE#
 REF:pov23 !
 PARAMETER G(GAMMA_PRIME,NI:FE;0) 273.00 +0.75*GDHCFE#+0.25*GDHCNI#
  +5000; 6000.00  N
-REF_pov23 !
+REF:pov23 !
 PARAMETER G(GAMMA_PRIME,NI:NI;0) 273.00 +3900+GHSERNI#; 6000.00  N
 REF:pov23 !
 PARAMETER G(GAMMA_PRIME,NI:TI;0) 273.00 +39000-8.5*T+0.25*GDHCNI#
@@ -12013,7 +12013,7 @@ PHASE BCC_DISL  %&  2  1   3 >
 This phase is used to model Cottrell atmosphere formation; 
 you should use it with these data only for interstitial segregation, 
 since uncontrolled behaviour if substitutional also segregate. 
-Interactions only defined up to a temperature of 1000°C 
+Interactions only defined up to a temperature of 1000Â°C 
 >> 2 !
     CONSTITUENT BCC_DISL  : AL,CO,CR,CU,FE%,MN,MO,NB,NI,S,SI,TI,V,W : 
                           B,C,N,VA% :  !
@@ -12583,11 +12583,11 @@ A00299-251  Mn-Ni-Si          B. Hu, H. Xu, S. Liu, Y. Du, C. He, C. Sha, D. Zha
 A00334-253  Ni-Nb-Ti          K. Santhy, K.C. Hari Kumar, Thermodynamic reassessment of Nb-Ni-Ti system
                                  with order-disorder model, J. Alloys Cmpd. 619 (2015) 733-747.
 A00335-254  Mn-Ni-Si		  B. Hu, Y. Du, J.J. Yuan, Z.F. Liu, Q.P. Wang, Thermodynamic reassessment of the 
-                        	  mn-ni-si system, J. Min. Metall. Sect. B Metall. 51 (2015) 125–132. 
+                        	  mn-ni-si system, J. Min. Metall. Sect. B Metall. 51 (2015) 125Â–132. 
 A00336-255  Fe-Mn-C           D. Djurovic, B. Hallstedt, J. von Appen, R. Dronskowski, Thermodynamic assessment 
-                              of the Fe–Mn–C system, Calphad. 35 (2011) 479–491. 
+                              of the FeÂ–MnÂ–C system, Calphad. 35 (2011) 479Â–491. 
 A00337-256  Ni-Mn             C. Guo, Z. Du, Thermodynamic optimization of the Mn-Ni system, 
-                              Intermetallics. 13 (2005) 525–534.
+                              Intermetallics. 13 (2005) 525Â–534.
 A00368-271  Fe-Mn-Nb          S.H. Liu, B. Hallstedt, D. Music, Y. Du,
                                  Ab initio calculations and thermodynamic modeling of the Fe-Mn-Nb system,
                                  CALPHAD 38 (2012) 43-58.
@@ -12597,11 +12597,11 @@ A00378-281  Cr-Fe-Nb          A. Jacob, C. Schmetterer, A.V. Khvan, A. Kondatrie
 A00381-284  Cr-Nb-Si          A. Jacob, E. Povoden-Karadeniz, E. Kozeschnik, 
                                  The Cr-Nb-Si system: Improved thermodynamic modelling and its use in simulation 
                                  of Laves phase in steel,
-                                 CALPHAD 56 (2017) 80–91. 
+                                 CALPHAD 56 (2017) 80Â–91. 
 A0000-286   FE-MO             V.B. Rajkumar, K.C. Hari Kumar,
                                  Thermodynamic modeling of the Fe-Mo system 
                                  coupled with experiments and ab initio calculations. 
-                                 Journal of Alloys and Compounds, 611 (2014), 303–312.	
+                                 Journal of Alloys and Compounds, 611 (2014), 303Â–312.	
 A0000-287 G-Phase             A. Jacob, C. Domain, G. Adjanor, P. Todeschini, E.Povoden-Karadeniz, 
                                  Thermodynamic modeling of G-phase and assessment of phase stabilities 
                                  in reactor pressure vessel steels and cast duplex stainless steels, 
