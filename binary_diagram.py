@@ -140,3 +140,39 @@ ax2.set_ylabel('Temperature (K)')
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
 plt.show()
+
+
+
+#%%
+
+
+from pycalphad import Database
+import sympy
+
+# 1. Загружаем базу данных из вашего файла
+dbf = Database('databases/mc_fe_v2062_clean.tdb')
+
+# 2. Проверяем наличие функции и извлекаем её
+target_function = 'GSIO2'
+
+if target_function in dbf.symbols:
+    # Получаем математическое выражение (объект SymPy)
+    formula = dbf.symbols[target_function]
+    
+    print(f"--- Формула для {target_function} ---")
+    # Стандартный вывод SymPy
+    print("Строковое представление:")
+    print(formula)
+    
+    print("\nКрасивый математический вывод (Piecewise):")
+    # pprint выводит выражение в удобочитаемом древовидном/математическом виде
+    sympy.pprint(formula)
+    
+    # Если нужно экспортировать в LaTeX
+    # print("\nLaTeX код:")
+    # print(sympy.latex(formula))
+    
+else:
+    print(f"Функция {target_function} не найдена в базе данных.")
+
+
