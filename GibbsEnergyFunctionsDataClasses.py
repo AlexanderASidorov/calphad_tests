@@ -6,12 +6,10 @@ Created on Tue Sep  8 18:00:21 2026
 @author: alexander
 """
 from enum import Enum
-from typing import Dict, Union, Optional, Callable, Tuple
+from typing import Dict, Union, Optional, Callable, Tuple, List
 from dataclasses import dataclass, field
-from typing import List
 import numpy as np
-
-
+import re
 
 
 
@@ -21,7 +19,7 @@ class GibbsEnergy:
     def polynome (tdbfuncdata: 'TdbFunctionData', T: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """
         расчет энергии Гиббса по стандартной формуле
-        G(T) = a + b·T + c·T·ln(T) + d·T² + e·T³ + f/T + g·T⁷ + h/T⁹ + t4·T⁴ + tm2/T² + tm3/T³
+        G(T) = b + t1·T + tlnt·T·ln(T) + t2·T² + t3·T³ + tm1/T + t7·T⁷ + tm9/T⁹ + t4·T⁴ + tm2/T² + tm3/T³
         """
         if np.any(T <= 0):
             raise ValueError("Температура должна быть > 0 K")
@@ -36,8 +34,7 @@ class GibbsEnergy:
         tdbfuncdata.T = T         
         
         ln_T = np.log(T)
-        G = (tdbfuncdata.a +
-             tdbfuncdata.b + 
+        G = (tdbfuncdata.b + 
              tdbfuncdata.t1 * T + 
              tdbfuncdata.tlnt * T * ln_T + 
              tdbfuncdata.t2 * T**2 + 
@@ -87,8 +84,7 @@ class TdbFunctionData:
     dependencies: List[str] = field(default_factory=list)
     
     # Коэффициенты полинома SGTE
-    a:      float = 0.0      # первый свободный коэффициент (0 или 273)
-    b:      float = 0.0      # второй свободный коэффициент
+    b:      float = 0.0      # свободный коэффициент
     t1:     float = 0.0      # коэффициент при T
     tlnt:   float = 0.0      # коэффициент при T·ln(T)
     t2:     float = 0.0      # коэффициент при T**2
@@ -104,24 +100,46 @@ class TdbFunctionData:
     # Коэффициенты перед дополнительными членами (ссылками на другие функции)
     ref_coef: List[float] = field(default_factory=lambda: [0.0, 0.0])
     
-    # Значение энергии Гиббса    
+    # Значение энергии Гиббса   
     T: Optional[Union[float, np.ndarray]] = field(default=None, repr=False) # Температура при которой расчитывается энергия Гиббса
     G: Optional[Union[float, np.ndarray]] = field(default=None, repr=False) # Энергия Гиббса расчитываемая по той или иной формуле (см. класс  GibbsEnergy)
 
     # Формула для расчета энергии Гиббса
     formula: Optional[Callable] = field(default=None, repr=False)
+      
+    
+    def calculateGibbsEnergy(self, T: Union[float, np.ndarray],
+                         *extras: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+       
+        """
+        Рассчитать G по привязанной формуле (.formula).
+
+        Parameters
+        ----------
+        T : температура(ы) в Кельвинах.
+        *extras : значения .G других функций, на которые ссылается данная.
+                    Например, для '+10083-4.813*T+GHSERAL#' сюда передаётся
+                    уже рассчитанное значение GHSERAL. Порядок должен совпадать
+                    с порядком коэффициентов в .ref_coef и имён в .dependencies.
         
-    def calculateGibbsEnergy (self, T: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """Рассчитать G по привязанной формуле."""
-        
+        """
+    
         if self.formula is None:
             raise ValueError("Необходимо определить вид функции для расчета энергии Гиббса."
-                             " Назначте атрибуту .formula метод из класса GibbsEnergy.")
+                             " Назначьте атрибуту .formula метод из класса GibbsEnergy.")
             
+            
+        # Проверка диапазона температур
+        T_arr = np.asarray(T)
+        if np.any(T_arr < self.t_min) or np.any(T_arr > self.t_max):
+            raise ValueError(
+                f"Температура выходит за допустимый диапазон "
+                f"[{self.t_min}, {self.t_max}] К. Получено: T = {T}"
+                )
         
         self.T = T
-        self.G = self.formula(self, T)
-        
+        self.G = self.formula(self, T, *extras)
+    
         return self.G
 
 
@@ -147,7 +165,6 @@ if __name__ == "__main__":
     t_min=273.00,
     t_max=700.00,
     elements=["AL"],
-    a= 273.00,
     b = -7976.15,
     t1=137.093038,
     tlnt=-24.3671976,
@@ -162,13 +179,13 @@ if __name__ == "__main__":
         t_min=700.00,
         t_max=933.47,
         elements=["AL"],
-        a = 0,
         b=-11276.24,
         t1=223.048446,
         tlnt=-38.5844296,
         t2=18.531982e-3,
         t3=-5.764227e-6,
         tm1=74092.0,
+        formula=GibbsEnergy.polynome
     )
     
     # Для третьего диапазона
@@ -182,12 +199,16 @@ if __name__ == "__main__":
         tlnt=-31.748192,
         tm9=-1.231e28,      
     )
+   
+        
+    T1 = np.array([500.0, 700.])
+    T2 = np.array([700.0, 800., 900])
     
     
     
-    T = np.array([500.0, 700.])
+    ghseral_1.calculateGibbsEnergy (T1)
     
-    ghseral_1.calculateGibbsEnergy (T)
+    ghseral_2.calculateGibbsEnergy (T2)
     
 
     
@@ -204,14 +225,13 @@ if __name__ == "__main__":
         t_min=273,
         t_max=6000.00,
         elements=["AL"],
-        a= 273.,
         b= 10083.,
         t1=-4.813,
         ref_coef = [1, 0],
         formula = GibbsEnergy.polynome_plus)
     
     
-    galbcc.calculateGibbsEnergy(T, ghseral_1.G)
+    galbcc.calculateGibbsEnergy(T1, ghseral_1.G)
     
 
 
