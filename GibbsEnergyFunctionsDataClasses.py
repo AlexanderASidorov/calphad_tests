@@ -79,6 +79,7 @@ class TdbFunctionData:
     name: str
     t_min: float
     t_max: float
+    pure_text: str = 'expression'
     
     elements: List[str] = field(default_factory=list)
     dependencies: List[str] = field(default_factory=list)
@@ -98,7 +99,7 @@ class TdbFunctionData:
     
     
     # Коэффициенты перед дополнительными членами (ссылками на другие функции)
-    ref_coef: List[float] = field(default_factory=lambda: [0.0, 0.0])
+    ref_coef: List[float] = field(default_factory=lambda: [])
     
     # Значение энергии Гиббса   
     T: Optional[Union[float, np.ndarray]] = field(default=None, repr=False) # Температура при которой расчитывается энергия Гиббса
@@ -106,6 +107,19 @@ class TdbFunctionData:
 
     # Формула для расчета энергии Гиббса
     formula: Optional[Callable] = field(default=None, repr=False)
+    
+    def __post_init__(self):
+        """
+        Автоматически выбирает формулу расчёта энергии Гиббса
+        в зависимости от наличия зависимостей от других функций.
+        """
+        if self.formula is None:
+            if not self.dependencies:  # если список зависимостей пустой
+                self.formula = GibbsEnergy.polynome
+            else:
+                self.formula = GibbsEnergy.polynome_plus
+    
+    
       
     
     def calculateGibbsEnergy(self, T: Union[float, np.ndarray],
@@ -141,6 +155,74 @@ class TdbFunctionData:
         self.G = self.formula(self, T, *extras)
     
         return self.G
+
+
+class TdbFunctionManipulation:
+    """Вспомогательные методы для работы с термодинамическими функциями"""
+    
+    @staticmethod
+    def get_function_from_dict(
+        func_name: str,
+        temperature: float,
+        functions: Dict[str, List['TdbFunctionData']]
+    ) -> Optional['TdbFunctionData']:
+        """
+        Найти объект TdbFunctionData по имени функции и температуре.
+        
+        Статический метод, который ищет подходящий температурный диапазон
+        для указанной функции и возвращает соответствующий объект.
+        
+        Parameters
+        ----------
+        func_name : str
+            Имя функции (например, 'GHSERNI', 'GTIFCC').
+        temperature : float
+            Температура в Кельвинах.
+        functions : Dict[str, List[TdbFunctionData]]
+            Словарь функций, полученный после парсинга TDB файла.
+        
+        Returns
+        -------
+        TdbFunctionData или None
+            Объект с подходящим температурным диапазоном,
+            или None, если функция/диапазон не найдены.
+        
+        Examples
+        --------
+        >>> parser = OtherThenSerTdbParser(tdb_string)
+        >>> functions = parser.parse()
+        >>> func_data = TdbParser.get_function_data("GTI2NI", 1000.0, functions)
+        >>> if func_data:
+        ...     print(f"Диапазон: {func_data.t_min} - {func_data.t_max} K")
+        """
+        # 1. Проверяем, существует ли функция в словаре
+        if func_name not in functions:
+            print(f"Функция '{func_name}' не найдена в словаре.")
+            return None
+        
+        func_ranges = functions[func_name]
+        
+        # 2. Проверяем, что список диапазонов не пуст
+        if not func_ranges:
+            print(f"Функция '{func_name}' не имеет спарсенных диапазонов.")
+            return None
+        
+        # 3. Ищем диапазон, в который попадает температура
+        for func_data in func_ranges:
+            if func_data.t_min <= temperature <= func_data.t_max:
+                return func_data
+        
+        # 4. Если ни один диапазон не подошёл
+        print(
+            f"Температура {temperature} K вне диапазонов функции '{func_name}': "
+            f"доступные диапазоны: "
+            f"{[(fd.t_min, fd.t_max) for fd in func_ranges]}"
+        )
+        return None
+        
+    
+
+
 
 
 
@@ -225,9 +307,10 @@ if __name__ == "__main__":
         t_min=273,
         t_max=6000.00,
         elements=["AL"],
+        dependencies=['GHSERAL'],
         b= 10083.,
         t1=-4.813,
-        ref_coef = [1, 0],
+        ref_coef = [1],
         formula = GibbsEnergy.polynome_plus)
     
     
