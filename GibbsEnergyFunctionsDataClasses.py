@@ -142,7 +142,6 @@ class TdbFunctionData:
             raise ValueError("Необходимо определить вид функции для расчета энергии Гиббса."
                              " Назначьте атрибуту .formula метод из класса GibbsEnergy.")
             
-            
         # Проверка диапазона температур
         T_arr = np.asarray(T)
         if np.any(T_arr < self.t_min) or np.any(T_arr > self.t_max):
@@ -150,6 +149,13 @@ class TdbFunctionData:
                 f"Температура выходит за допустимый диапазон "
                 f"[{self.t_min}, {self.t_max}] К. Получено: T = {T}"
                 )
+        
+        # Проверка наличия зависимостей
+        if self.dependencies and len(extras) != len(self.dependencies):
+            missing_deps = [dep for dep, extra in zip(self.dependencies, extras + (None,) * len(self.dependencies)) if extra is None]
+            raise ValueError(
+                f"Missing required dependency {', '.join(missing_deps)} for {self.name} at T={T_arr[0]:.1f}K"
+            )
         
         self.T = T
         self.G = self.formula(self, T, *extras)
