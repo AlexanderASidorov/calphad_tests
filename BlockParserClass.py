@@ -183,14 +183,16 @@ class TDBBlockExtractor:
                 else:
                     break
         
-        # 3. Находим конец блока (следующий разделитель или заголовок другого блока)
+        # 3. Находим конец блока — ТОЛЬКО заголовок следующего блока.
+        # ВАЖНО: нельзя обрывать блок на первом попавшемся декоративном
+        # разделителе '$###...###' / '$***...***' — такие разделители
+        # используются и ВНУТРИ одного блока (например, чтобы отделить
+        # 'binary interactions' от 'ternary interactions' у одной и той же
+        # фазы), поэтому обрыв по ним ведёт к тихой потере хвоста блока
+        # (L/TC/BMAGN параметров и т.п.).
         end = start
         while end < len(self._lines):
             stripped = self._lines[end].strip()
-            
-            # Проверяем, не разделитель ли это
-            if self._separator_pattern.match(stripped):
-                break
             
             # Проверяем, не заголовок ли это другого блока
             if stripped.startswith('$'):
@@ -264,4 +266,4 @@ if __name__ == '__main__':
     KNOWN_BLOCKS = extractor.KNOWN_BLOCKS
     
     # Запрашиваем блок
-    result = extractor.get_block('SER (Standard elements references)')
+    result = extractor.get_block('THERMODYNAMIC DATA: TAN_EPS')
