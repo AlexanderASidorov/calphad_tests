@@ -334,3 +334,15 @@ if __name__ == "__main__":
 
 
 
+    
+    """
+    Тест: проверка ошибки при отсутствии зависимости (недостающий GHSERAL)
+    Ожидается: ValueError с сообщением "Missing required dependency GHSERAL for GALBCC at T=500.0K"
+    """
+    try:
+        # Попробуем вызвать calculateGibbsEnergy без передачи значения для GHSERAL
+        galbcc.calculateGibbsEnergy(T1)
+    except ValueError as e:
+        print(f"✅ Ожидаемая ошибка: {e}")
+    else:
+        raise AssertionError("Ожидалась ошибка из-за отсутствия зависимости, но её не было.")
