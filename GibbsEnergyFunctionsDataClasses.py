@@ -323,13 +323,7 @@ if __name__ == "__main__":
     galbcc.calculateGibbsEnergy(T1, ghseral_1.G)
     
 
-
-
-
-
-
-
-    
+  
     
 
 

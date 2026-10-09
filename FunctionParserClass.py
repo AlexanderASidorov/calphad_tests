@@ -43,7 +43,7 @@ class TdbParser:
             (по одному объекту на каждый температурный диапазон).
         """
         # Разбить на блоки функций по ключевому слову FUNCTION
-        function_blocks = re.split(r'\nFUNCTION\s+', '\n' + self.raw_data)
+        function_blocks = re.split(r'\n[ \t]*FUNCTION\s+', '\n' + self.raw_data)
         
         for block in function_blocks:
             block = block.strip()
