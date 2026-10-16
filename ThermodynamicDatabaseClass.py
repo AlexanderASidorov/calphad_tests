@@ -67,6 +67,8 @@ class ThermodynamicDatabase:
         self.parameters: Dict[str, Dict[str, List[TdbParameterData]]] = {}
         # быстрый поиск: phase -> (тип, подрешётки, order) -> список T-диапазонов
         self._param_index: Dict[str, Dict[ParamKey, List[TdbParameterData]]] = {}
+        # кэш значений функций: (имя, T) -> G
+        self._func_cache: Dict[Tuple[str, float], float] = {}
 
     # ------------------------------------------------------------------
     # Загрузка
@@ -130,19 +132,28 @@ class ThermodynamicDatabase:
         """
         Значение функции (GHSERFE, GFEFCC, ...) при температуре T.
         Ссылки '...#' на другие функции разворачиваются рекурсивно.
+        Результат кэшируется по (имя, T): в солвере T обычно фиксирована,
+        а одни и те же GHSER* вызываются сотни раз.
         """
+        T = float(T)
+        key = (name, T)
+        cached = self._func_cache.get(key)
+        if cached is not None:
+            return cached
         func = TdbFunctionManipulation.get_function_from_dict(name, T, self.functions)
         if func is None:
             raise KeyError(f"Функция '{name}' не найдена или T={T} вне её диапазонов")
-        return self._evaluate_data(func, T)
+        value = self._evaluate_data(func, T)
+        self._func_cache[key] = value
+        return value
 
     def _evaluate_data(self, data: TdbFunctionData, T: float) -> float:
-        extras = [self.evaluate_function(dep, T) for dep in data.dependencies]
-        # polynome_plus ждёт список значений зависимостей одним аргументом,
-        # а обычный polynome (без зависимостей) — только T
-        if extras:
-            return float(data.calculateGibbsEnergy(T, extras))
-        return float(data.calculateGibbsEnergy(T))
+        """Чистое вычисление: зависимости -> значения -> data.evaluate()."""
+        dep_values = [self.evaluate_function(dep, T) for dep in data.dependencies]
+        return float(data.evaluate(T, dep_values))
+
+    def clear_cache(self) -> None:
+        self._func_cache.clear()
 
     def find_parameter(
         self, phase: str, param_type: str,

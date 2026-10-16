@@ -376,7 +376,7 @@ if __name__ == '__main__':
     GHSERTIA.calculateGibbsEnergy (T)
     
     # затем для основной
-    GTI2NI.calculateGibbsEnergy (T, [GHSERNIA.G, GHSERTIA.G])
+    GTI2NI.calculateGibbsEnergy (T, GHSERNIA.G, GHSERTIA.G)
     
     
     

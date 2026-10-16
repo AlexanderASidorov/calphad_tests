@@ -1,0 +1,71 @@
+CalPhaD - architecture overview (own CALPHAD solver, database mc_fe_v2062)
+==========================================================================
+
+LAYER 1. TDB PARSING (text -> Python objects)
+
+BlockParserClass.py
+  TDBBlockExtractor     Cuts the TDB file into named blocks using the "$ ..." header
+                        comments (SER functions, other functions, one block per phase
+                        parameters). Uses the hard-coded list KNOWN_BLOCKS.
+
+ElementParserClass.py
+  ElementData           Dataclass: one ELEMENT (symbol, reference phase, mass, H298, S298).
+  ElementTdbParser      Parses all ELEMENT lines.
+
+TypeDefinitionParserClass.py
+  TypeDefinition        Dataclass: one TYPE_DEFINITION (magnetic model: symbol, phase,
+                        structure factor p, magnetic factor).
+  TypeDefinitionTdbParser  Parses all TYPE_DEFINITION lines.
+
+PhaseParserClass.py
+  PhaseDefinition       Dataclass: phase name, magnetic symbol, sublattices, site
+                        ratios, constituents of each sublattice, priority.
+  PhaseTdbParser        Parses PHASE and CONSTITUENT statements and merges them.
+
+LAYER 2. GIBBS ENERGY FUNCTIONS (T-polynomials)
+
+GibbsEnergyFunctionsDataClasses.py
+  GibbsEnergy           Static formulas: polynome (SGTE polynomial in T) and
+                        polynome_plus (polynomial + coef * other functions).
+  TdbFunctionData       Dataclass: one temperature range of one function (coefficients,
+                        T-range, dependencies '...#'). evaluate() is the pure, fast
+                        calculation; calculateGibbsEnergy() is the checked version.
+  TdbFunctionManipulation  get_function_from_dict(): picks the right T-range of a function.
+
+FunctionParserClass.py
+  TdbParser             Base parser of FUNCTION blocks (T-ranges, coefficients, references).
+  SerTdbParser          Parser for the SER (GHSERxx) functions.
+  OtherThanSerTdbParser Parser for all other functions, with a list of known dependencies.
+
+ParameterParserClass.py
+  TdbParameterData      Dataclass (inherits TdbFunctionData): one T-range of a phase
+                        parameter G / L / TC / BMAGN (phase, constituents, RK order).
+  ParameterTdbParser    Parses PARAMETER expressions of a phase block.
+
+LAYER 3. DATABASE (single access point)
+
+ThermodynamicDatabaseClass.py
+  AutoFunctionTdbParser  FUNCTION parser that takes the names of functions from the file
+                         text itself instead of fixed lists.
+  ThermodynamicDatabase  Loads the whole TDB and holds elements, type_definitions, phases,
+                         functions and parameters. Evaluates functions (recursive '#'
+                         references, cached per T) and parameters, finds a parameter by
+                         phase/type/constituents/order, checks that references resolve.
+
+LAYER 4. PHASE MODEL (thermodynamics of one phase)
+
+PhaseModelClass.py
+  PhaseModel            Gibbs energy of one phase as a function of T and site fractions y:
+                        end-members, reference term, ideal mixing, gradient dG/dy.
+                        (Next: Redlich-Kister excess, magnetic term, then Hessian.)
+
+TESTS
+
+test_phase_model.py     Tests on the real database: loading, evaluation of all functions,
+                        PhaseModel for all phases, G(FCC_A1,FE:VA) == GFEFCC, gradient
+                        against finite differences.
+
+DATA FLOW
+  TDB file -> TDBBlockExtractor / element, type, phase parsers -> function and parameter
+  parsers (TdbFunctionData, TdbParameterData) -> ThermodynamicDatabase -> PhaseModel
+  -> (planned) equilibrium solver.

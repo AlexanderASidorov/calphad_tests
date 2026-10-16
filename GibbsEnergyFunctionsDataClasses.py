@@ -6,7 +6,7 @@ Created on Tue Sep  8 18:00:21 2026
 @author: alexander
 """
 from enum import Enum
-from typing import Dict, Union, Optional, Callable, Tuple, List
+from typing import Dict, Union, Optional, Callable, Tuple, List, Sequence
 from dataclasses import dataclass, field
 import numpy as np
 import re
@@ -54,7 +54,7 @@ class GibbsEnergy:
     @staticmethod
     def polynome_plus(tdbfuncdata: 'TdbFunctionData',
                       T: Union[float, np.ndarray],
-                      extras: Union[float, np.ndarray]
+                      *extras: Union[float, np.ndarray]
                       ) -> Union[float, np.ndarray]:
         """
         Полином + дополнительные члены.
@@ -62,7 +62,7 @@ class GibbsEnergy:
 
         Пример для GDHCNI = +0.5*GNIHCP# + 0.5*GHSERNI#:
             gdhcni.ref_coef = [0.5, 0.5]
-            GibbsEnergy.polynome_plus(gdhcni, T, gnihip_G, ghserni_G)
+            GibbsEnergy.polynome_plus(gdhcni, T, gnihip_G, ghserni_G)   # значения зависимостей - отдельными аргументами
         """
         G = GibbsEnergy.polynome(tdbfuncdata, T)
         for coef, val in zip(tdbfuncdata.ref_coef, extras):
@@ -122,6 +122,26 @@ class TdbFunctionData:
     
       
     
+    def evaluate(self, T: Union[float, np.ndarray],
+                 dep_values: Sequence[float] = ()) -> Union[float, np.ndarray]:
+        """
+        ЧИСТОЕ вычисление G(T): ничего не пишет в объект (.T/.G не трогает),
+        диапазон T не проверяет (диапазон выбирает вызывающий код).
+        Это быстрый путь для солвера; calculateGibbsEnergy оставлен
+        для интерактивной работы и обратной совместимости.
+
+        dep_values : значения зависимостей в порядке self.dependencies
+                     (ref_coef[i] * dep_values[i] прибавляется к полиному).
+        """
+        T = np.asarray(T, dtype=float) if not np.isscalar(T) else float(T)
+        G = (self.b + self.t1 * T + self.tlnt * T * np.log(T)
+             + self.t2 * T**2 + self.t3 * T**3 + self.tm1 / T
+             + self.t7 * T**7 + self.tm9 / T**9 + self.t4 * T**4
+             + self.tm2 / T**2 + self.tm3 / T**3)
+        for coef, val in zip(self.ref_coef, dep_values):
+            G = G + coef * val
+        return G
+
     def calculateGibbsEnergy(self, T: Union[float, np.ndarray],
                          *extras: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
        
@@ -154,7 +174,7 @@ class TdbFunctionData:
         if self.dependencies and len(extras) != len(self.dependencies):
             missing_deps = [dep for dep, extra in zip(self.dependencies, extras + (None,) * len(self.dependencies)) if extra is None]
             raise ValueError(
-                f"Missing required dependency {', '.join(missing_deps)} for {self.name} at T={T_arr[0]:.1f}K"
+                f"Missing required dependency {', '.join(missing_deps)} for {self.name} at T={T_arr.ravel()[0]:.1f}K"
             )
         
         self.T = T
