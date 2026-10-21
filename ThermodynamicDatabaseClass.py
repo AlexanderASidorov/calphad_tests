@@ -40,7 +40,7 @@ class AutoFunctionTdbParser(OtherThanSerTdbParser):
 
     def __init__(self, tdb_string: str, all_names: List[str]):
         # длинные имена вперёд, чтобы короткое имя не "съело" часть длинного
-        names = sorted(set(all_names), key=len, reverse=True)
+        names = sorted(set(all_names), key=lambda n: (-len(n), n))   # детерминированный порядок при равной длине
         self.FUNCTION_NAMES = names
         self.DEPENDENCIES = names
         super().__init__(tdb_string)

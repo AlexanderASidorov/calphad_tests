@@ -55,15 +55,22 @@ ThermodynamicDatabaseClass.py
 LAYER 4. PHASE MODEL (thermodynamics of one phase)
 
 PhaseModelClass.py
+  InteractionSet        All interaction parameters of one phase (L, plus G-typed
+                        interactions) turned into arrays for fast evaluation:
+                        Redlich-Kister (binary, reciprocal A,B:C,D), Muggianu (ternary),
+                        higher-order constant terms, '*' wildcards. Gives energy and
+                        gradient; lists anything it could not implement (unsupported).
   PhaseModel            Gibbs energy of one phase as a function of T and site fractions y:
-                        end-members, reference term, ideal mixing, gradient dG/dy.
-                        (Next: Redlich-Kister excess, magnetic term, then Hessian.)
+                        end-members, reference term, ideal mixing, excess (via
+                        InteractionSet), and the gradient dG/dy.
+                        (Next: magnetic term, then Hessian.)
 
 TESTS
 
 test_phase_model.py     Tests on the real database: loading, evaluation of all functions,
-                        PhaseModel for all phases, G(FCC_A1,FE:VA) == GFEFCC, gradient
-                        against finite differences.
+                        PhaseModel for all phases, G(FCC_A1,FE:VA) == GFEFCC, excess term
+                        against an independent slow implementation (all phases), gradient
+                        against finite differences (all phases).
 
 DATA FLOW
   TDB file -> TDBBlockExtractor / element, type, phase parsers -> function and parameter
